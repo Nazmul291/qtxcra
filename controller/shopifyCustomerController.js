@@ -38,11 +38,15 @@ class ShopifyCustomerController {
     async createCustomers(req, res, next){
         const shopifyApi= new ShopifyApi()
         const {
-            name,
+            firstName,
+            lastName,
             email,
             company,
             companyRegion,
             phone,
+            vat,
+            billingAddress,
+            shippingAddress,
             annualRevenue,
             totalCustomers,
             monthlyPurchasePlan,
@@ -69,6 +73,34 @@ class ShopifyCustomerController {
                 value:company
             })
         }
+
+        if(billingAddress){
+            customerMetafields.push({
+                namespace:"member",
+                type:"single_line_text_field",
+                key:"billingAddress",
+                value:billingAddress
+            })
+        }
+
+        if(shippingAddress){
+            customerMetafields.push({
+                namespace:"member",
+                type:"single_line_text_field",
+                key:"shippingAddress",
+                value:shippingAddress
+            })
+        }
+
+        if(vat){
+            customerMetafields.push({
+                namespace:"member",
+                type:"single_line_text_field",
+                key:"vat",
+                value:vat
+            })
+        }
+
 
         if(companyRegion){
             customerMetafields.push({
@@ -133,6 +165,15 @@ class ShopifyCustomerController {
             })
         }
 
+        if(phone){
+            customerMetafields.push({
+                namespace:"member",
+                type:"single_line_text_field",
+                key:"phone",
+                value:phone
+            })
+        }
+
         if(password){
             customerMetafields.push({
                 namespace:"member",
@@ -151,19 +192,16 @@ class ShopifyCustomerController {
             })
         }
 
-        if(name){
-            const names = name.split(" ");
-            customerInput["firstName"]=names[0]
-            if(names.length>0){
-                customerInput["lastName"]=names[1]
-            }
+        if(firstName){
+            customerInput["firstName"]=firstName
+        }
+        if(lastName){
+            customerInput["lastName"]=lastName
         }
         if(email){
             customerInput["email"]=email
         }
-        if(phone){
-            customerInput["phone"]=phone
-        }
+        
         try{
             if(customerMetafields.length>0){
                 customerInput["metafields"]=customerMetafields
@@ -178,19 +216,20 @@ class ShopifyCustomerController {
                 delete variables['input']['firstName']
                 delete variables['input']['lastName']
                 delete variables['input']['email']
-                delete variables['input']['phone']
                 await shopifyApi.graphql(updateCustomer, variables)
             }else{
                 const response = await shopifyApi.graphql(createCustomer, variables)
                 // console.log(response)
                 customerId=response.data?.customerCreate?.customer?.id
+                
+            }
+            if(customerId){
                 const activation = await shopifyApi.graphql(customerSendAccountInviteEmail,{customerId})
                 console.log(activation)
-
             }
             
             
-            return res.status(200).send({success:true})
+            return res.status(200).send({success:true, message:"Please check your emain for invitation"})
         }catch(error){
             console.log(error)
             res.status(404).send({message:"Something went wrong"})
