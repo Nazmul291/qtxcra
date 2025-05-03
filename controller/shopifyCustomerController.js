@@ -229,7 +229,7 @@ class ShopifyCustomerController {
             }
             
             
-            return res.status(200).send({success:true, message:"Please check your emain for invitation"})
+            return res.status(200).send({success:true, message:"Please check your email—we’ve sent you an invitation. Let us know if you have any questions or need assistance. We're here to help!"})
         }catch(error){
             console.log(error)
             res.status(404).send({message:"Something went wrong"})
