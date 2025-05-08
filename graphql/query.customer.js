@@ -12,9 +12,11 @@ export const customerByEmail = `#graphql
     customers(first: 1, query: $email) {
       nodes {
         id
-        email
-        firstName
-        lastName
+        metafield(namespace:"member", key:"isMember"){
+          namespace
+          key
+          value
+        }
       }
     }
   }`

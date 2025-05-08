@@ -13,8 +13,9 @@ class ShopifyCustomerController {
         const shopifyApi= new ShopifyApi()
         try{
             const response = await shopifyApi.graphql(customerByEmail, {email:`email:${email}`})
-            const id = response.data.customers?.nodes[0]?.id
-            return id
+            console.log(response.data.customers?.nodes[0])
+            const customer = response.data.customers?.nodes[0]
+            return {id:customer?.id, isMember:customer?.metafield?.value}
         }catch(error){
             console.log(error)
             return null
@@ -209,8 +210,10 @@ class ShopifyCustomerController {
             const variables={
                 input: customerInput
             }
-            let customerId=await this.getCustomerIdByEmail(email)
-            console.log(customerId)
+            let {id:customerId, isMember}=await this.getCustomerIdByEmail(email)
+            if(isMember=="true"){
+                return res.status(200).send({success:false, message:`You are already member please login with this ${customerInput["email"]} email to acess your account!`})
+            }
             if(customerId){
                 variables['input']['id']=customerId
                 delete variables['input']['firstName']
