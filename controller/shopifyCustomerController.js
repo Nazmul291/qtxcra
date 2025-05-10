@@ -197,23 +197,24 @@ class ShopifyCustomerController {
             })
         }
 
-        if(firstName){
-            customerInput["firstName"]=firstName
-        }
-        if(lastName){
-            customerInput["lastName"]=lastName
-        }
-        if(email){
-            customerInput["email"]=email
-        }
+        // if(firstName){
+        //     customerInput["firstName"]=firstName
+        // }
+        // if(lastName){
+        //     customerInput["lastName"]=lastName
+        // }
+        // if(email){
+        //     customerInput["email"]=email
+        // }
         
         try{
             if(customerMetafields.length>0){
                 customerInput["metafields"]=customerMetafields
             }
             const variables={
-                input: {}
+                input: customerInput
             }
+            console.log(variables)
             let {id:customerId, isMember}=await this.getCustomerIdByEmail({query:{email}})
             if(isMember=="true"){
                 return res.status(200).send({success:false, message:`You are already member please login with this ${customerInput["email"]} email to acess your account!`})
