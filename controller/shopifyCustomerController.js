@@ -9,12 +9,16 @@ class ShopifyCustomerController {
       this.message = 'Internal Server Error';
     }
 
-    async getCustomerIdByEmail(email){
+    async getCustomerIdByEmail(req, res, next){
         const shopifyApi= new ShopifyApi()
+        const email = req.query.email
         try{
             const response = await shopifyApi.graphql(customerByEmail, {email:`email:${email}`})
             console.log(response.data.customers?.nodes[0])
             const customer = response.data.customers?.nodes[0]
+            if(res){
+                return res.status(200).send({id:customer?.id, isMember:customer?.metafield?.value})
+            }
             return {id:customer?.id, isMember:customer?.metafield?.value}
         }catch(error){
             console.log(error)
@@ -208,9 +212,9 @@ class ShopifyCustomerController {
                 customerInput["metafields"]=customerMetafields
             }
             const variables={
-                input: customerInput
+                input: {}
             }
-            let {id:customerId, isMember}=await this.getCustomerIdByEmail(email)
+            let {id:customerId, isMember}=await this.getCustomerIdByEmail({query:{email}})
             if(isMember=="true"){
                 return res.status(200).send({success:false, message:`You are already member please login with this ${customerInput["email"]} email to acess your account!`})
             }
@@ -220,6 +224,8 @@ class ShopifyCustomerController {
                 delete variables['input']['lastName']
                 delete variables['input']['email']
                 await shopifyApi.graphql(updateCustomer, variables)
+
+                return res.status(200).send({success:true, message:"Customer update success"})
             }else{
                 const response = await shopifyApi.graphql(createCustomer, variables)
                 // console.log(response)
