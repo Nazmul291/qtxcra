@@ -226,7 +226,7 @@ class ShopifyCustomerController {
                 delete variables['input']['email']
                 await shopifyApi.graphql(updateCustomer, variables)
 
-                return res.status(200).send({success:true, message:"Customer update success"})
+                return res.status(200).send({success:true, message:"Please check your email—we’ve sent you an invitation. Let us know if you have any questions or need assistance. We're here to help!"})
             }else{
                 const response = await shopifyApi.graphql(createCustomer, variables)
                 // console.log(response)
